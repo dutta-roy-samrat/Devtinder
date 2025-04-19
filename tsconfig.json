@@ -12,7 +12,8 @@
       "@middlewares/*": ["middlewares/*"],
       "@clients/*": ["clients/*"],
       "@routers/*": ["routers/*"],
-      "@generated/*": ["generated/*"]
+      "@generated/*": ["generated/*"],
+      "@schema-validations/*": ["schema-validations/*"]
     }
   },
   "include": ["src"]
