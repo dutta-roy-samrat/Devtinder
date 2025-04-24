@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 
 import prisma from "@clients/prisma";
 import authRouter from "@routers/auth";
+import { rateLimiter } from "@middlewares/rate-limiter/public-routes";
 
 const PORT = process.env.PORT || 8000;
 
@@ -12,6 +13,7 @@ async function startServer() {
   try {
     await prisma.$connect();
     console.log("Connected to DB successfully!");
+    app.use(rateLimiter());
     app.use(bodyParser.json());
     app.use("/auth", authRouter);
     app.listen(PORT, () => {

@@ -13,7 +13,9 @@
       "@clients/*": ["clients/*"],
       "@routers/*": ["routers/*"],
       "@generated/*": ["generated/*"],
-      "@schema-validations/*": ["schema-validations/*"]
+      "@schema-validations/*": ["schema-validations/*"],
+      "@constants/*": ["constants/*"],
+      "@utils/*": ["utils/*"],
     }
   },
   "include": ["src"]

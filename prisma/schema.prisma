@@ -29,7 +29,7 @@
       createdAt   DateTime @default(now()) @map("created_at") @db.Date
       updatedAt   DateTime @updatedAt @map("updated_at") @db.Date
       profile     Profile?
-      password    String   @db.VarChar(32)
+      password    String   @db.Text
       gender      Gender
       skills      Skill[]  @relation("UserSkills")
     }
