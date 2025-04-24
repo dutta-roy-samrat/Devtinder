@@ -11,7 +11,11 @@
     "paths": {
       "@middlewares/*": ["middlewares/*"],
       "@clients/*": ["clients/*"],
-      "@routers/*": ["routers/*"]
+      "@routers/*": ["routers/*"],
+      "@generated/*": ["generated/*"],
+      "@schema-validations/*": ["schema-validations/*"],
+      "@constants/*": ["constants/*"],
+      "@utils/*": ["utils/*"],
     }
   },
   "include": ["src"]

@@ -6,7 +6,7 @@ export const JWTAuthentication = (
   res: Response,
   next: NextFunction
 ) => {
-  const accessToken = req.cookies();
+  const accessToken = req.cookies;
   console.log(accessToken, "kklop");
   //   const token;
   next();

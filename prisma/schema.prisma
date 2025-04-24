@@ -1,48 +1,48 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+    // This is your Prisma schema file,
+    // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+    // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+    // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../dist/generated/prisma"
-}
+    generator client {
+      provider = "prisma-client-js"
+      output   = "../src/generated/prisma"
+    }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
 
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
+    enum Gender {
+      MALE
+      FEMALE
+      OTHER
+    }
 
-model User {
-  id          Int      @id @default(autoincrement()) @db.Integer
-  firstName   String   @map("first_name") @db.VarChar(50)
-  lastName    String   @map("last_name") @db.VarChar(50)
-  email       String   @unique @db.VarChar(254)
-  dateOfBirth DateTime @map("date_of_birth") @db.Date
-  createdAt   DateTime @default(now()) @map("created_at") @db.Date
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Date
-  profile     Profile?
-  password    String   @db.VarChar(32)
-  gender      Gender
-  skills      Skill[]  @relation("UserSkills")
-}
+    model User {
+      id          Int      @id @default(autoincrement()) @db.Integer
+      firstName   String   @map("first_name") @db.VarChar(50)
+      lastName    String   @map("last_name") @db.VarChar(50)
+      email       String   @unique @db.VarChar(254)
+      dateOfBirth DateTime @map("date_of_birth") @db.Date
+      createdAt   DateTime @default(now()) @map("created_at") @db.Date
+      updatedAt   DateTime @updatedAt @map("updated_at") @db.Date
+      profile     Profile?
+      password    String   @db.Text
+      gender      Gender
+      skills      Skill[]  @relation("UserSkills")
+    }
 
-model Profile {
-  userId     Int     @id @map("user_id") @db.Integer
-  profile    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  profileUrl String? @map("profile_url") @db.VarChar(255)
-  bio        String? @default("Looking to connect and talk about tech") @db.Text
-}
+    model Profile {
+      userId     Int     @id @map("user_id") @db.Integer
+      profile    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+      profileUrl String? @map("profile_url") @db.VarChar(255)
+      bio        String? @default("Looking to connect and talk about tech") @db.Text
+    }
 
-model Skill {
-  id    Int    @id @default(autoincrement()) @db.Integer
-  name  String @unique @db.VarChar(100)
-  users User[] @relation("UserSkills")
-}
+    model Skill {
+      id    Int    @id @default(autoincrement()) @db.Integer
+      name  String @unique @db.VarChar(100)
+      users User[] @relation("UserSkills")
+    }
