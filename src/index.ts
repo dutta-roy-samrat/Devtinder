@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 import prisma from "@clients/prisma";
 import authRouter from "@routers/auth";
@@ -15,6 +16,7 @@ async function startServer() {
     console.log("Connected to DB successfully!");
     app.use(rateLimiter());
     app.use(bodyParser.json());
+    app.use(cookieParser());
     app.use("/auth", authRouter);
     app.listen(PORT, () => {
       console.log("Server is running on http://localhost:8000");
