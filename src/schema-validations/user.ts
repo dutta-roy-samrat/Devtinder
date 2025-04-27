@@ -67,7 +67,9 @@ const UserSchema = z.object({
     .refine((val) => new Date(val.replace(/\//g, "-")) <= new Date(), {
       message: "Date of birth cannot be in the future",
     })
-    .transform((val) => new Date(val.replace(/\//g, "-"))),
+    .transform((val) =>
+      new Date(val.replace(/\//g, "-")).toLocaleDateString("en-US")
+    ),
   gender: z.nativeEnum(Gender, { message: "Invalid gender" }),
   profile: ProfileSchema.optional(),
   skills: z.array(SkillSchema).optional(),

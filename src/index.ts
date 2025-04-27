@@ -1,14 +1,23 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import { createServer } from "http2";
+import { Server as SocketIOServer } from "socket.io";
 
 import prisma from "@clients/prisma";
 import authRouter from "@routers/auth";
+import feedRouter from "@routers/feed";
+import connectionRouter from "@routers/connections";
 import { rateLimiter } from "@middlewares/rate-limiter/public-routes";
+import globalErrorHandler from "@middlewares/global-error-handler";
+import { initializeSocket } from "@clients/socket";
 
 const PORT = process.env.PORT || 8000;
 
 const app = express();
+const server = createServer(app);
+
+initializeSocket(server);
 
 async function startServer() {
   try {
@@ -18,8 +27,12 @@ async function startServer() {
     app.use(bodyParser.json());
     app.use(cookieParser());
     app.use("/auth", authRouter);
-    app.listen(PORT, () => {
-      console.log("Server is running on http://localhost:8000");
+    app.use("/feed", feedRouter);
+    app.use("/connections", connectionRouter);
+    app.use(globalErrorHandler);
+
+    server.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error("Could not connect to the database", error);

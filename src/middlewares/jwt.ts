@@ -1,16 +1,18 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 
-import { setTokenInCookie } from "@utils/token";
+import { setTokenInCookie, verifyAndDecodeToken } from "@utils/token";
+
+import { getUserByUniqueConstraint } from "@utils/user";
+import { ErrorWithStatus } from "class/error";
 
 import { SECRET_KEY } from "@constants/environment-variables";
-import prisma from "@clients/prisma";
-import { getUserByUniqueConstraint } from "@utils/user";
+import { asyncHandler } from "@utils/async-handler";
 
 const validateRefreshToken = async ({
   refreshToken,
-  res,
   req,
+  res,
 }: {
   refreshToken: string;
   res: Response;
@@ -23,35 +25,36 @@ const validateRefreshToken = async ({
       if (decoded && typeof decoded !== "string" && "id" in decoded) {
         const { id } = decoded;
         setTokenInCookie({ res, userId: id });
-        req.user = await getUserByUniqueConstraint({id});
+        req.user = await getUserByUniqueConstraint({ id });
       }
     } catch {
-      return res.status(401).json({ message: "Unauthorized Access" });
+      throw new ErrorWithStatus("Unauthorized Access", 401);
     }
   }
 };
 
-export const JWTAuthentication = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { accessToken, refreshToken } = req.cookies;
-  console.log(req.cookies);
-  if (accessToken) {
-    try {
-      jwt.verify(accessToken, SECRET_KEY);
-      const decoded = jwt.decode(accessToken);
-      if (decoded && typeof decoded !== "string" && "id" in decoded) {
-        const { id } = decoded;
-        req.user = await getUserByUniqueConstraint({id});
+export const JWTAuthentication = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { accessToken, refreshToken } = req.cookies;
+    if (!accessToken || !refreshToken)
+      throw new ErrorWithStatus("Unauthorized Access", 401);
+    if (accessToken) {
+      try {
+        const decodedToken = verifyAndDecodeToken({
+          secretKey: SECRET_KEY,
+          token: accessToken,
+        });
+        if (decodedToken) {
+          const { id } = decodedToken;
+          req.user = await getUserByUniqueConstraint({ id });
+          return next();
+        }
+      } catch {
+        await validateRefreshToken({ res, refreshToken, req });
+        return next();
       }
-      return next();
-    } catch (e) {
-      validateRefreshToken({ res, refreshToken, req });
-      return next();
     }
+    await validateRefreshToken({ refreshToken, res, req });
+    return next();
   }
-  await validateRefreshToken({ refreshToken, res, req });
-  return next();
-};
+);

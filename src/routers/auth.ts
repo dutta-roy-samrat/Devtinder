@@ -1,23 +1,35 @@
-import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
-
-import { JWTAuthentication } from "@middlewares/jwt";
-import { UserSchema } from "@schema-validations/user";
+import { Router, Request, Response } from "express";
 
 import prisma from "@clients/prisma";
-import { setTokenInCookie } from "@utils/token";
+
+import { ErrorWithStatus } from "class/error";
+
 import { LoginSchema } from "@schema-validations/login";
-import { getUserByUniqueConstraint } from "@utils/user";
+import { UserSchema } from "@schema-validations/user";
 
-const router = express.Router();
+import { resetPasswordMailer } from "@mailer/reset-password";
 
-router.post("/register", async (req: Request, res: Response) => {
-  const { success, data, error } = UserSchema.safeParse(req.body);
-  if (!success) {
-    return res.status(400).json({ message: "Invalid request", error: error });
-  }
+import { asyncHandler } from "@utils/async-handler";
+import { setTokenInCookie, verifyAndDecodeToken } from "@utils/token";
+import {
+  getAgeOfUserFromDateOfBirth,
+  getUserByUniqueConstraint,
+} from "@utils/user";
 
-  try {
+import { RESET_PASSWORD_SECRET_KEY } from "@constants/environment-variables";
+import { io } from "@clients/socket";
+
+const router = Router();
+
+router.post(
+  "/register",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { success, data, error } = await UserSchema.safeParseAsync(req.body);
+    if (!success) {
+      throw new ErrorWithStatus("Invalid input data", 400);
+    }
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await prisma.user.create({
       data: {
@@ -30,30 +42,94 @@ router.post("/register", async (req: Request, res: Response) => {
       },
     });
     setTokenInCookie({ res, userId: user.id });
-    res.status(201).json({ message: "User created successfully" });
-  } catch (e) {
-    res.status(500).json({ message: "Something went wrong", error: e });
-  }
-});
+    io.emit("newUser", {
+      data: {
+        fullName: `${data.firstName} ${data.lastName}`,
+        age: getAgeOfUserFromDateOfBirth(data.dateOfBirth),
+        gender: data.gender,
+      },
+    });
+    return res.status(201).json({ message: "User created successfully" });
+  })
+);
 
-router.post("/login", async (req: Request, res: Response) => {
-  const { success, error, data } = LoginSchema.safeParse(req.body);
-  if (!success)
-    return res.status(404).json({ message: "Invalid Request", error: error });
+router.post(
+  "/login",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { success, data, error } = await LoginSchema.safeParseAsync(req.body);
+    if (!success) {
+      throw new ErrorWithStatus("Invalid login data", 400);
+    }
 
-  try {
     const { email, password: passwordInput } = data;
     const user = await getUserByUniqueConstraint({ email });
     const { password } = user;
     const isPasswordValid = await bcrypt.compare(passwordInput, password);
+
     if (isPasswordValid) {
       setTokenInCookie({ res, userId: user.id });
-      return res.status(200).json({ message: "User successfully logged in !" });
+      return res.status(200).json({ message: "User successfully logged in!" });
     }
-    throw new Error();
-  } catch {
-    return res.status(401).json({ message: "Invalid Credentials" });
-  }
-});
+    throw new ErrorWithStatus("Invalid credentials", 401);
+  })
+);
+
+router.post(
+  "/reset-password",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { success, data } = await UserSchema.pick({
+      email: true,
+    }).safeParseAsync(req.body);
+    if (!success) {
+      throw new ErrorWithStatus("Invalid email format", 400);
+    }
+
+    const { email } = data;
+    const user = await getUserByUniqueConstraint({ email });
+    await resetPasswordMailer({ email, id: user.id });
+    return res.status(200).json({ message: "Password reset email sent" });
+  })
+);
+
+router.post(
+  "/set-new-password",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { success, data } = UserSchema.pick({
+      password: true,
+    }).safeParse(req.body);
+    if (!success) {
+      throw new ErrorWithStatus("Invalid password format", 400);
+    }
+
+    const { password } = data;
+    const token = req.query.token;
+
+    if (!token) {
+      throw new ErrorWithStatus("Token is missing", 400);
+    }
+
+    const decodedToken = verifyAndDecodeToken({
+      token: token as string,
+      secretKey: RESET_PASSWORD_SECRET_KEY,
+    });
+
+    if (decodedToken) {
+      const { id } = decodedToken;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      return res.status(200).json({ message: "Password successfully updated" });
+    }
+  })
+);
 
 export default router;
