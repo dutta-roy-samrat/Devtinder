@@ -3,7 +3,7 @@ import { Router, Request, Response } from "express";
 
 import prisma from "@clients/prisma";
 
-import { ErrorWithStatus } from "class/error";
+import { ErrorWithStatus } from "@class/error";
 
 import { LoginSchema } from "@schema-validations/login";
 import { UserSchema } from "@schema-validations/user";

@@ -1,13 +1,18 @@
 import prisma from "@clients/prisma";
-import { ErrorWithStatus } from "class/error";
 
-type UserIdentifier =
+import { User } from "@generated/prisma";
+import { ErrorWithStatus } from "@class/error";
+
+type UserIdentifier = (
   | { id: number; email?: never }
-  | { email: string; id?: never };
+  | { email: string; id?: never }
+) & { fieldsToBeOmitted?: { [key in keyof User]?: boolean } };
 
 export const getUserByUniqueConstraint = async (identifier: UserIdentifier) => {
+  const { fieldsToBeOmitted, ...rest } = identifier;
   const user = await prisma.user.findUnique({
-    where: identifier,
+    where: rest,
+    omit: fieldsToBeOmitted,
   });
 
   if (!user) {
@@ -17,5 +22,5 @@ export const getUserByUniqueConstraint = async (identifier: UserIdentifier) => {
   return user;
 };
 
-export const getAgeOfUserFromDateOfBirth = (dateOfBirth: Date|string) =>
+export const getAgeOfUserFromDateOfBirth = (dateOfBirth: Date | string) =>
   new Date().getFullYear() - new Date(dateOfBirth).getFullYear();

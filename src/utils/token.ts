@@ -1,8 +1,9 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Response } from "express";
 
+import { ErrorWithStatus } from "@class/error";
+
 import { IS_PRODUCTION, SECRET_KEY } from "@constants/environment-variables";
-import { ErrorWithStatus } from "class/error";
 
 export const generateToken = (id: number) => {
   return jwt.sign({ id }, SECRET_KEY, { expiresIn: "15m" });

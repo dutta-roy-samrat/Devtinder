@@ -16,7 +16,8 @@
       "@schema-validations/*": ["schema-validations/*"],
       "@constants/*": ["constants/*"],
       "@utils/*": ["utils/*"],
-      "@mailer/*": ["mailer/*"]
+      "@mailer/*": ["mailer/*"],
+      "@class/*": ["class/*"]
     }
   },
   "include": ["src"]

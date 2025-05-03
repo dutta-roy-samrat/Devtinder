@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ErrorWithStatus } from "class/error";
+import { ErrorWithStatus } from "@class/error";
 
 const globalErrorHandler = (
   err: ErrorWithStatus | Error,

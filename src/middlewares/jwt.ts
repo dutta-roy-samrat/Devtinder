@@ -8,6 +8,7 @@ import { ErrorWithStatus } from "class/error";
 
 import { SECRET_KEY } from "@constants/environment-variables";
 import { asyncHandler } from "@utils/async-handler";
+import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
 
 const validateRefreshToken = async ({
   refreshToken,
@@ -46,7 +47,10 @@ export const JWTAuthentication = asyncHandler(
         });
         if (decodedToken) {
           const { id } = decodedToken;
-          req.user = await getUserByUniqueConstraint({ id });
+          req.user = await getUserByUniqueConstraint({
+            id,
+            fieldsToBeOmitted: DEFAULT_OMITTED_FIELDS,
+          });
           return next();
         }
       } catch {

@@ -8,7 +8,7 @@ import {
   RESET_PASSWORD_SECRET_KEY,
 } from "@constants/environment-variables";
 import { RESET_PASSWORD_ROUTE } from "@constants/routes";
-import { ErrorWithStatus } from "class/error";
+import { ErrorWithStatus } from "@class/error";
 
 const generateResetLink = (id: number) => {
   const token = jwt.sign({ id }, RESET_PASSWORD_SECRET_KEY, {
@@ -31,7 +31,7 @@ export const resetPasswordMailer = async ({
     });
     const resetLink = generateResetLink(id);
     const htmlContent = htmlFile.replace("{{resetLink}}", resetLink);
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: MY_EMAIL,
       to: email,
       subject: "Reset Your Password",

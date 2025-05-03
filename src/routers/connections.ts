@@ -1,12 +1,16 @@
+import { Router, Response, Request } from "express";
+
 import prisma from "@clients/prisma";
-import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
 import { ConnectionStatus, User } from "@generated/prisma";
+
 import { JWTAuthentication } from "@middlewares/jwt";
+
 import { ConnectionSchema } from "@schema-validations/connection-status-change";
 import { asyncHandler } from "@utils/async-handler";
 import { getUserByUniqueConstraint } from "@utils/user";
-import { ErrorWithStatus } from "class/error";
-import { Router, Response, Request } from "express";
+import { ErrorWithStatus } from "@class/error";
+
+import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
 
 const router = Router();
 
