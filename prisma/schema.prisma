@@ -35,12 +35,14 @@ model User {
 
   sentConnections     Connections[] @relation("SentConnections")
   receivedConnections Connections[] @relation("ReceivedConnections")
+
+  @@index([createdAt, id])
 }
 
 model Profile {
   userId     Int     @id @map("user_id") @db.Integer
   profile    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  profileUrl String? @map("profile_url") @db.VarChar(255)
+  profileUrl String? @default("") @map("profile_url") @db.VarChar(255)
   bio        String? @default("Looking to connect and talk about tech") @db.Text
 }
 

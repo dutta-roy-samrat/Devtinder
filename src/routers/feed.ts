@@ -1,11 +1,21 @@
-import prisma from "@clients/prisma";
-import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
-import { JWTAuthentication } from "@middlewares/jwt";
-import { asyncHandler } from "@utils/async-handler";
-import { ErrorWithStatus } from "class/error";
+import omit from "lodash/omit";
+import { JwtPayload } from "jsonwebtoken";
 import { Router, Request, NextFunction, Response } from "express";
 
+import prisma from "@clients/prisma";
+import { JWTAuthentication } from "@middlewares/jwt";
+import { asyncHandler } from "@utils/async-handler";
+import { ErrorWithStatus } from "@class/error";
+
+import { verifyAndDecodeToken } from "@utils/token";
+import { FEED_CURSOR_SECRET_KEY } from "@constants/environment-variables";
+import { getFeedResponse } from "@utils/feed";
+
+import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
+
 const router = Router();
+
+const fieldsToOmit = omit(DEFAULT_OMITTED_FIELDS, ["createdAt"]);
 
 router.use(JWTAuthentication);
 
@@ -16,24 +26,27 @@ router.use(
   }
 );
 
-const fieldsToBeOmiited = {
-  ...DEFAULT_OMITTED_FIELDS,
-  dateOfBirth: true,
-};
-
 router.get(
   "",
   asyncHandler(async (req: Request, res: Response) => {
     const { user } = req;
-    const { limit = 10, page = 1 } = req.query;
-    const skip = Number(limit) * (Number(page) - 1);
+    const { cursor, limit = 10 } = req.query;
+    const decodedToken = verifyAndDecodeToken({
+      secretKey: FEED_CURSOR_SECRET_KEY,
+      token: cursor as string,
+    });
+    const { id: cursorId, createdAt: cursorCreatedAt } =
+      decodedToken as JwtPayload;
     const take = Number(limit);
     if (user) {
       const { id } = user;
       const usersInFeed = await prisma.user.findMany({
-        skip,
         take,
-        omit: fieldsToBeOmiited,
+        omit: fieldsToOmit,
+        cursor: {
+          id: cursorId,
+          createdAt: cursorCreatedAt,
+        },
         where: {
           id: {
             not: id,
@@ -56,13 +69,21 @@ router.get(
           ],
         },
       });
-
-      return res.status(200).json({ data: usersInFeed });
+      return res
+        .status(200)
+        .json(getFeedResponse<keyof typeof fieldsToOmit>(usersInFeed));
     }
     const usersInFeed = await prisma.user.findMany({
-      omit: fieldsToBeOmiited,
+      cursor: {
+        id: cursorId,
+        createdAt: cursorCreatedAt,
+      },
+      take,
+      omit: fieldsToOmit,
     });
-    res.status(200).json({ data: usersInFeed });
+    return res
+      .status(200)
+      .json(getFeedResponse<keyof typeof fieldsToOmit>(usersInFeed));
   })
 );
 

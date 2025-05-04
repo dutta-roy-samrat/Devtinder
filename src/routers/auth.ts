@@ -25,7 +25,7 @@ const router = Router();
 router.post(
   "/register",
   asyncHandler(async (req: Request, res: Response) => {
-    const { success, data, error } = await UserSchema.safeParseAsync(req.body);
+    const { success, data } = await UserSchema.safeParseAsync(req.body);
     if (!success) {
       throw new ErrorWithStatus("Invalid input data", 400);
     }
@@ -56,11 +56,11 @@ router.post(
 router.post(
   "/login",
   asyncHandler(async (req: Request, res: Response) => {
-    const { success, data, error } = await LoginSchema.safeParseAsync(req.body);
+    const { success, data } = await LoginSchema.safeParseAsync(req.body);
     if (!success) {
-      throw new ErrorWithStatus("Invalid login data", 400);
+      throw new ErrorWithStatus("Invalid Credentials", 400);
     }
-
+    console.log(data, "data");
     const { email, password: passwordInput } = data;
     const user = await getUserByUniqueConstraint({ email });
     const { password } = user;

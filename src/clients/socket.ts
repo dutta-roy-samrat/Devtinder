@@ -1,9 +1,9 @@
-import { Http2Server } from "node:http2";
+import { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 
 let io: Server;
 
-const initializeSocket = (server: Http2Server) => {
+const initializeSocket = (server: HttpServer) => {
   io = new Server(server);
 };
 
