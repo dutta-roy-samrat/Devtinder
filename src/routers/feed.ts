@@ -31,22 +31,31 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { user } = req;
     const { cursor, limit = 10 } = req.query;
-    const decodedToken = verifyAndDecodeToken({
-      secretKey: FEED_CURSOR_SECRET_KEY,
-      token: cursor as string,
-    });
-    const { id: cursorId, createdAt: cursorCreatedAt } =
-      decodedToken as JwtPayload;
+    const decodedToken = (() => {
+      if (!cursor) return null;
+      const decodedToken = verifyAndDecodeToken({
+        secretKey: FEED_CURSOR_SECRET_KEY,
+        token: cursor as string,
+      });
+      return decodedToken;
+    })();
+
+    const { id: cursorId, createdAt: cursorCreatedAt } = decodedToken || {};
+    const cursorObj = decodedToken
+      ? {
+          cursor: {
+            id: cursorId,
+            createdAt: cursorCreatedAt,
+          },
+        }
+      : {};
     const take = Number(limit);
     if (user) {
       const { id } = user;
       const usersInFeed = await prisma.user.findMany({
         take,
         omit: fieldsToOmit,
-        cursor: {
-          id: cursorId,
-          createdAt: cursorCreatedAt,
-        },
+        ...cursorObj,
         where: {
           id: {
             not: id,
@@ -74,10 +83,7 @@ router.get(
         .json(getFeedResponse<keyof typeof fieldsToOmit>(usersInFeed));
     }
     const usersInFeed = await prisma.user.findMany({
-      cursor: {
-        id: cursorId,
-        createdAt: cursorCreatedAt,
-      },
+      ...cursorObj,
       take,
       omit: fieldsToOmit,
     });
