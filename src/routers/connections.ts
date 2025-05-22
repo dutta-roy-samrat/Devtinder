@@ -124,7 +124,7 @@ router.patch(
     });
     return res
       .status(200)
-      .json({ message: `Accepted Request from ${requestee.fullName}` });
+      .json({ message: `Accepted Request from ${requestee.firstName} ${requestee.lastName}` });
   })
 );
 

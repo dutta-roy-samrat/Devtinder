@@ -5,6 +5,7 @@ import { asyncHandler } from "@utils/async-handler";
 
 import { User } from "@generated/prisma";
 import prisma from "@clients/prisma";
+import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.get(
       where: {
         userId: Number(userId) || id,
       },
+      // omit: DEFAULT_OMITTED_FIELDS,
     });
     res.status(200).json({ data: { ...user, profile: profile } });
   })

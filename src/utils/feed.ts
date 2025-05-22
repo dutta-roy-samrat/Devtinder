@@ -8,7 +8,6 @@ import { FEED_CURSOR_SECRET_KEY } from "@constants/environment-variables";
 type UserResponse<T extends keyof User> = Pick<User, "id" | "createdAt"> &
   Omit<User, T> & {
     age: number;
-    fullName: string;
   };
 
 export const getFeedResponse = <T extends keyof User>(

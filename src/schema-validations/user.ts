@@ -43,31 +43,32 @@ const UserSchema = z.object({
       }
     )
     .transform((val) => val.trim()),
-  dateOfBirth: z
-    .string()
-    .regex(/^\d{4}\/\d{2}\/\d{2}$/, {
-      message: "Date must be in yyyy/mm/dd format",
-    })
-    .refine(
+  dateOfBirth: z.preprocess(
+    (val) => {
+      if (typeof val === "string" && val.trim() === "") return undefined;
+      return val;
+    },
+    z.coerce.date({ invalid_type_error: "Invalid date" }).refine(
       (val) => {
-        const [year, month, day] = val.split("/").map(Number);
-        const date = new Date(`${year}-${month}-${day}`);
-        return (
-          date instanceof Date &&
-          !isNaN(date.getTime()) &&
-          date.getFullYear() === year &&
-          date.getMonth() + 1 === month &&
-          date.getDate() === day
-        );
+        const today = new Date();
+        const birthDate = new Date(val);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          return age - 1 >= 18;
+        }
+
+        return age >= 18;
       },
       {
-        message: "Invalid date",
+        message: "Must be at least 18 years old",
       }
     )
-    .refine((val) => new Date(val.replace(/\//g, "-")) <= new Date(), {
-      message: "Date of birth cannot be in the future",
-    })
-    .transform((val) => new Date(val.replace(/\//g, "-"))),
+  ),
   gender: z.nativeEnum(Gender, { message: "Invalid gender" }),
   profile: ProfileSchema.optional(),
   skills: z.array(SkillSchema).optional(),

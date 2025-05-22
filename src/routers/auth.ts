@@ -25,8 +25,9 @@ const router = Router();
 router.post(
   "/register",
   asyncHandler(async (req: Request, res: Response) => {
-    const { success, data } = await UserSchema.safeParseAsync(req.body);
+    const { success, data, error } = await UserSchema.safeParseAsync(req.body);
     if (!success) {
+      console.error(error, "error");
       throw new ErrorWithStatus("Invalid input data", 400);
     }
 
@@ -129,6 +130,15 @@ router.post(
 
       return res.status(200).json({ message: "Password successfully updated" });
     }
+  })
+);
+
+router.post(
+  "/logout",
+  asyncHandler(async (req: Request, res: Response) => {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    return res.status(200).json({ message: "User successfully logged out" });
   })
 );
 

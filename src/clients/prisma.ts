@@ -10,12 +10,6 @@ const prisma = new PrismaClient().$extends({
           return getAgeOfUserFromDateOfBirth(user.dateOfBirth);
         },
       },
-      fullName: {
-        needs: { firstName: true, lastName: true },
-        compute(user) {
-          return `${user.firstName} ${user.lastName}`;
-        },
-      },
     },
   },
 });

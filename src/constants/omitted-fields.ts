@@ -3,6 +3,5 @@ export const DEFAULT_OMITTED_FIELDS = {
   createdAt: true,
   updatedAt: true,
   dateOfBirth: true,
-  firstName: true,
-  lastName: true,
+  email: true,
 };
