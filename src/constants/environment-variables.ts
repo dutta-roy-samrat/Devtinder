@@ -14,5 +14,5 @@ export const RESET_PASSWORD_SECRET_KEY = process.env
 
 export const BASE_FE_URL = process.env.BASE_FE_URL;
 
-export const FEED_CURSOR_SECRET_KEY = process.env
-  .FEED_CURSOR_SECRET_KEY as string;
+export const USER_CURSOR_SECRET_KEY = process.env
+  .USER_CURSOR_SECRET_KEY as string;

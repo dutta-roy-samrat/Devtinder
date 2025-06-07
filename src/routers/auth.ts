@@ -12,13 +12,9 @@ import { resetPasswordMailer } from "@mailer/reset-password";
 
 import { asyncHandler } from "@utils/async-handler";
 import { setTokenInCookie, verifyAndDecodeToken } from "@utils/token";
-import {
-  getAgeOfUserFromDateOfBirth,
-  getUserByUniqueConstraint,
-} from "@utils/user";
+import { getUserByUniqueConstraint } from "@utils/user";
 
 import { RESET_PASSWORD_SECRET_KEY } from "@constants/environment-variables";
-import { io } from "@clients/socket";
 
 const router = Router();
 
@@ -43,13 +39,6 @@ router.post(
       },
     });
     setTokenInCookie({ res, userId: user.id });
-    io.emit("newUser", {
-      data: {
-        fullName: `${data.firstName} ${data.lastName}`,
-        age: getAgeOfUserFromDateOfBirth(data.dateOfBirth),
-        gender: data.gender,
-      },
-    });
     return res.status(201).json({ message: "User created successfully" });
   })
 );
@@ -61,7 +50,6 @@ router.post(
     if (!success) {
       throw new ErrorWithStatus("Invalid Credentials", 400);
     }
-    console.log(data, "data");
     const { email, password: passwordInput } = data;
     const user = await getUserByUniqueConstraint({ email });
     const { password } = user;

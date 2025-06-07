@@ -3,12 +3,10 @@ import { NextFunction, Request, Response } from "express";
 
 import { setTokenInCookie, verifyAndDecodeToken } from "@utils/token";
 
-import { getUserByUniqueConstraint } from "@utils/user";
 import { ErrorWithStatus } from "class/error";
 
 import { SECRET_KEY } from "@constants/environment-variables";
 import { asyncHandler } from "@utils/async-handler";
-import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
 
 const validateRefreshToken = async ({
   refreshToken,
@@ -26,7 +24,7 @@ const validateRefreshToken = async ({
       if (decoded && typeof decoded !== "string" && "id" in decoded) {
         const { id } = decoded;
         setTokenInCookie({ res, userId: id });
-        req.user = await getUserByUniqueConstraint({ id });
+        req.userId = Number(id);
       }
     } catch {
       throw new ErrorWithStatus("Unauthorized Access", 401);
@@ -47,10 +45,7 @@ export const JWTAuthentication = asyncHandler(
         });
         if (decodedToken) {
           const { id } = decodedToken;
-          req.user = await getUserByUniqueConstraint({
-            id,
-            fieldsToBeOmitted: DEFAULT_OMITTED_FIELDS,
-          });
+          req.userId = Number(id);
           return next();
         }
       } catch {

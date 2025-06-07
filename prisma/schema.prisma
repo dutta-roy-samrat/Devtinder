@@ -42,7 +42,9 @@ model User {
 model Profile {
   userId     Int     @id @map("user_id") @db.Integer
   profile    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  profileUrl String? @default("") @map("profile_url") @db.VarChar(255)
+  profileImageCropInfo Json? @map("profile_image_crop_info")
+  originalProfileImageUrl String? @map("original_profile_image_url")
+  croppedProfileImageUrl String? @map("cropped_profile_image_url")
   bio        String? @default("Looking to connect and talk about tech") @db.Text
 }
 

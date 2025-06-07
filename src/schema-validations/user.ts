@@ -2,8 +2,6 @@ import { z } from "zod";
 import validator from "validator";
 
 import { Gender } from "@generated/prisma";
-import { ProfileSchema } from "@schema-validations/profile";
-import { SkillSchema } from "@schema-validations/skill";
 
 const UserSchema = z.object({
   firstName: z
@@ -11,20 +9,18 @@ const UserSchema = z.object({
     .trim()
     .min(1, { message: "First name is required" })
     .max(50, { message: "First name must be less than 50 characters" })
-    .refine((val) => validator.escape(val))
-    .transform((val) => val.trim()),
+    .transform((val) => validator.escape(val.trim())),
   lastName: z
     .string()
     .trim()
     .min(1, { message: "Last name is required" })
     .max(50, { message: "Last name must be less than 50 characters" })
-    .refine((val) => validator.escape(val))
-    .transform((val) => val.trim()),
+    .transform((val) => validator.escape(val.trim())),
   email: z
     .string()
     .trim()
     .email({ message: "Invalid email address" })
-    .transform((val) => val.trim()),
+    .transform((val) => validator.escape(val.trim())),
   password: z
     .string()
     .trim()
@@ -70,8 +66,6 @@ const UserSchema = z.object({
     )
   ),
   gender: z.nativeEnum(Gender, { message: "Invalid gender" }),
-  profile: ProfileSchema.optional(),
-  skills: z.array(SkillSchema).optional(),
 });
 
 export { UserSchema };
