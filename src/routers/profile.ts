@@ -5,7 +5,6 @@ import fs from "fs";
 import { JWTAuthentication } from "@middlewares/jwt";
 import { asyncHandler } from "@utils/async-handler";
 
-import { User } from "@generated/prisma";
 import prisma from "@clients/prisma";
 import { ProfileUploadSchema } from "@schema-validations/profile";
 import { ErrorWithStatus } from "@class/error";
@@ -29,7 +28,7 @@ const profileUpload = multer({
     },
   }),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
