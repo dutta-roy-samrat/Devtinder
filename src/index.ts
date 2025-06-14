@@ -29,7 +29,7 @@ async function startServer() {
     console.log("Connected to DB successfully!");
     app.use(
       cors({
-        origin: "http://localhost:3000",
+        origin: process.env.BASE_FE_URL,
         credentials: true,
       })
     );
