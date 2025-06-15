@@ -23,11 +23,13 @@ export const setTokenInCookie = ({
     httpOnly: true,
     secure: IS_PRODUCTION,
     maxAge: 15 * 60 * 1000,
+    sameSite: "none",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: IS_PRODUCTION,
     maxAge: 24 * 60 * 60 * 1000,
+    sameSite: "none",
   });
 };
 
