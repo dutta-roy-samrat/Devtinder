@@ -3,7 +3,7 @@ import omit from "lodash/omit";
 
 import prisma from "@clients/prisma";
 
-import { User } from "@generated/prisma";
+import { User } from "@prisma/client";
 import { ErrorWithStatus } from "@class/error";
 
 import { verifyAndDecodeToken } from "@utils/token";

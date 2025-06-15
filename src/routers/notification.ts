@@ -1,4 +1,4 @@
-// import { User } from "@generated/prisma";
+// import { User } from "@prisma/client";
 // import { JWTAuthentication } from "@middlewares/jwt";
 // import connectionEmitter from "event-emitters/connection";
 // import { Router } from "express";

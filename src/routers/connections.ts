@@ -1,7 +1,7 @@
 import { Router, Response, Request } from "express";
 
 import prisma from "@clients/prisma";
-import { ConnectionStatus, User } from "@generated/prisma";
+import { ConnectionStatus, User } from "@prisma/client";
 
 import { JWTAuthentication } from "@middlewares/jwt";
 

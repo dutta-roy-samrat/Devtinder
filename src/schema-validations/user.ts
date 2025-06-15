@@ -1,7 +1,7 @@
 import { z } from "zod";
 import validator from "validator";
 
-import { Gender } from "@generated/prisma";
+import { Gender } from "@prisma/client";
 
 const UserSchema = z.object({
   firstName: z

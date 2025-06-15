@@ -1,4 +1,4 @@
-import { PrismaClient } from "@generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { getAgeOfUserFromDateOfBirth } from "@utils/user";
 
 const prisma = new PrismaClient().$extends({

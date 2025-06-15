@@ -1,4 +1,4 @@
-import { ConnectionStatus } from "@generated/prisma";
+import { ConnectionStatus } from "@prisma/client";
 import { z } from "zod";
 
 const ConnectionSchema = z.object({

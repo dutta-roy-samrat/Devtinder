@@ -7,7 +7,7 @@ import { asyncHandler } from "@utils/async-handler";
 import { getCursorObject, getUserListResponse } from "@utils/user";
 
 import { DEFAULT_OMITTED_FIELDS } from "@constants/omitted-fields";
-import { User } from "@generated/prisma";
+import { User } from "@prisma/client";
 
 const router = Router();
 
