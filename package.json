@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc && tsc-alias",
-    "start": "node --loader @esbuild-kit/esm-loader dist/index.js",
+    "build": "prisma generate && tsc && tsc-alias",
+    "start": "node dist/index.js",
     "dev": "nodemon",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "render-postbuild": "npm run prisma:generate && npm run build && npm run prisma:migrate"
+    "render-build": "npm ci && npm run build && npm run prisma:migrate",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
