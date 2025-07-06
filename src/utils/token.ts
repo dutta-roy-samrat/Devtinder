@@ -3,7 +3,7 @@ import { Response } from "express";
 
 import { ErrorWithStatus } from "@class/error";
 
-import { IS_PRODUCTION, SECRET_KEY } from "@constants/environment-variables";
+import { SECRET_KEY } from "@constants/environment-variables";
 
 export const generateToken = (id: number) => {
   return jwt.sign({ id }, SECRET_KEY, { expiresIn: "15m" });
@@ -17,20 +17,8 @@ export const setTokenInCookie = ({
   userId: number;
 }) => {
   const accessToken = generateToken(userId);
-  const refreshToken = generateToken(userId);
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: IS_PRODUCTION,
-    maxAge: 15 * 60 * 1000,
-    sameSite: "none",
-  });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: IS_PRODUCTION,
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "none",
-  });
+  res.setHeader("X-Access-Token", accessToken);
 };
 
 export const verifyAndDecodeToken = ({

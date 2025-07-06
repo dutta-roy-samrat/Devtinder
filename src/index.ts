@@ -31,6 +31,7 @@ async function startServer() {
       cors({
         origin: process.env.BASE_FE_URL,
         credentials: true,
+        exposedHeaders: ["X-Access-Token"],
       })
     );
     app.use(rateLimiter());

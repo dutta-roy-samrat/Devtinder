@@ -125,7 +125,6 @@ router.post(
   "/logout",
   asyncHandler(async (req: Request, res: Response) => {
     res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
     return res.status(200).json({ message: "User successfully logged out" });
   })
 );
