@@ -14,7 +14,10 @@ import { asyncHandler } from "@utils/async-handler";
 import { setTokenInCookie, verifyAndDecodeToken } from "@utils/token";
 import { getUserByUniqueConstraint } from "@utils/user";
 
-import { RESET_PASSWORD_SECRET_KEY } from "@constants/environment-variables";
+import {
+  RESET_PASSWORD_SECRET_KEY,
+  SECRET_KEY,
+} from "@constants/environment-variables";
 
 const router = Router();
 
@@ -127,6 +130,30 @@ router.post(
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
     return res.status(200).json({ message: "User successfully logged out" });
+  })
+);
+
+router.post(
+  "/refresh-token",
+  asyncHandler(async (req: Request, res: Response) => {
+    const refreshToken = req.body?.refreshToken;
+    if (!refreshToken) {
+      throw new ErrorWithStatus("Refresh token missing", 401);
+    }
+    let decoded;
+    try {
+      decoded = verifyAndDecodeToken({
+        token: refreshToken,
+        secretKey: SECRET_KEY,
+      });
+    } catch (err) {
+      throw new ErrorWithStatus("Invalid refresh token", 401);
+    }
+    if (!decoded || !decoded.id) {
+      throw new ErrorWithStatus("Invalid refresh token payload", 401);
+    }
+    setTokenInCookie({ res, userId: decoded.id });
+    return res.status(200).json({ message: "Token refreshed successfully" });
   })
 );
 
