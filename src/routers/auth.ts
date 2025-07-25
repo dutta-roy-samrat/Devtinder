@@ -27,7 +27,7 @@ router.post(
       throw new ErrorWithStatus("Invalid input data", 400);
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const hashedPassword = await bcrypt.hash(String(data.password), 10);
     const user = await prisma.user.create({
       data: {
         firstName: data.firstName,

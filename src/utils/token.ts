@@ -20,13 +20,13 @@ export const setTokenInCookie = ({
   const refreshToken = generateToken(userId);
 
   res.cookie("accessToken", accessToken, {
-    httpOnly: true,
+    // httpOnly: true,
     secure: IS_PRODUCTION,
     maxAge: 15 * 60 * 1000,
     sameSite: "none",
   });
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
+    // httpOnly: true,
     secure: IS_PRODUCTION,
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "none",
