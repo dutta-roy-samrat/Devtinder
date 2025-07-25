@@ -33,6 +33,7 @@ async function startServer() {
         credentials: true,
       })
     );
+    app.set('trust proxy', 1);
     app.use(rateLimiter());
     app.use(bodyParser.json());
     app.use(cookieParser());
